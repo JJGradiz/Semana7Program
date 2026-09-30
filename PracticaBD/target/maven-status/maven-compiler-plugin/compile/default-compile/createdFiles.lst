@@ -1,0 +1,9 @@
+ni\uam\edu\practicabd\Interfaces\CRUD.class
+ni\uam\edu\practicabd\DAO\CategoriaDao.class
+ni\uam\edu\practicabd\Controllers\ProductoController.class
+ni\uam\edu\practicabd\PracticaApplication.class
+ni\uam\edu\practicabd\Modelos\Producto.class
+ni\uam\edu\practicabd\DAO\ProductoDao.class
+ni\uam\edu\practicabd\Util\DataBaseConnection.class
+ni\uam\edu\practicabd\Controllers\CategoriaController.class
+ni\uam\edu\practicabd\Modelos\Categoria.class

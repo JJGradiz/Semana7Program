@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="820.0" prefWidth="1080.0" spacing="16.0" styleClass="app-root" stylesheets="@app.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ni.uam.edu.practicabd.Controllers.ProductoController">
+    <padding>
+        <Insets bottom="24.0" left="28.0" right="28.0" top="24.0" />
+    </padding>
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="page-header">
+            <children>
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="page-title" text="Gestión de productos" />
+                        <Label styleClass="page-subtitle" text="Administra tu catálogo, existencias y precios" />
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+
+        <VBox spacing="14.0" styleClass="card">
+            <children>
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="section-title" text="Datos del producto" />
+                        <Label styleClass="muted-text" text="Completa la información para registrar o actualizar un producto." />
+                    </children>
+                </VBox>
+                <GridPane hgap="14.0" vgap="8.0">
+                    <padding>
+                        <Insets top="4.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="field-label" text="Código" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="txtCodigo" promptText="Ej. PRD-001" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label styleClass="field-label" text="Nombre" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+                        <TextField fx:id="txtNombre" promptText="Nombre del producto" styleClass="input" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                        <Label styleClass="field-label" text="Categoría" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <HBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <children>
+                                <ComboBox fx:id="cmbCategoria" promptText="Selecciona una categoría" styleClass="input" HBox.hgrow="ALWAYS" />
+                                <Button mnemonicParsing="false" onAction="#abrirCategorias" styleClass="button-secondary" text="+ Categoría" />
+                            </children>
+                        </HBox>
+                        <Label styleClass="field-label" text="Precio" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtPrecio" promptText="0.00" styleClass="input" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                        <Label styleClass="field-label" text="Existencia" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="txtExistencia" promptText="0" styleClass="input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label styleClass="field-label" text="Ruta" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <HBox spacing="8.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                            <children>
+                                <TextField fx:id="txtRuta" editable="false" promptText="Sin imagen seleccionada" styleClass="input" HBox.hgrow="ALWAYS" />
+                                <Button mnemonicParsing="false" onAction="#seleccionarRuta" styleClass="button-secondary" text="Examinar" />
+                            </children>
+                        </HBox>
+
+                        <CheckBox fx:id="chkActivo" mnemonicParsing="false" selected="true" styleClass="active-check" text="Producto activo" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    </children>
+                    <columnConstraints>
+                        <javafx.scene.layout.ColumnConstraints minWidth="78.0" />
+                        <javafx.scene.layout.ColumnConstraints hgrow="ALWAYS" percentWidth="38.0" />
+                        <javafx.scene.layout.ColumnConstraints minWidth="70.0" />
+                        <javafx.scene.layout.ColumnConstraints hgrow="ALWAYS" percentWidth="38.0" />
+                    </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+                </GridPane>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Button fx:id="btnGuardar" mnemonicParsing="false" onAction="#btnGuardar" styleClass="button-primary" text="Guardar producto" />
+                        <Button mnemonicParsing="false" onAction="#limpiarFormulario" styleClass="button-quiet" text="Limpiar" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <VBox spacing="12.0" styleClass="card" VBox.vgrow="ALWAYS">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <children>
+                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="section-title" text="Inventario" />
+                                <Label styleClass="muted-text" text="Busca en todos los campos o limita la búsqueda a uno." />
+                            </children>
+                        </VBox>
+                        <Label styleClass="status-badge" text="CATÁLOGO" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <ComboBox fx:id="cmbCriterios" prefWidth="190.0" styleClass="input" />
+                        <TextField fx:id="txtDatoFiltrar" onKeyReleased="#filtrarPorCriterio" promptText="Buscar productos..." styleClass="input" HBox.hgrow="ALWAYS" />
+                        <Button mnemonicParsing="false" onAction="#limpiarFiltro" styleClass="button-quiet" text="Limpiar filtro" />
+                    </children>
+                </HBox>
+                <TableView fx:id="tblProductos" prefHeight="300.0" styleClass="data-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colCodigo" prefWidth="105.0" text="Código" />
+                        <TableColumn fx:id="colNombre" prefWidth="190.0" text="Producto" />
+                        <TableColumn fx:id="colCategoria" prefWidth="145.0" text="Categoría" />
+                        <TableColumn fx:id="colPrecio" prefWidth="100.0" text="Precio" />
+                        <TableColumn fx:id="colExistencia" prefWidth="100.0" text="Existencia" />
+                        <TableColumn fx:id="colActivo" prefWidth="80.0" text="Activo" />
+                        <TableColumn fx:id="colRuta" prefWidth="220.0" text="Ruta de imagen" />
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</VBox>
