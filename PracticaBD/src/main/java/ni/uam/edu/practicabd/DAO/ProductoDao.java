@@ -172,6 +172,7 @@ public class ProductoDao implements CRUD<Producto> {
         return "No se pudo " + operacion + ". Verifique la conexión y los datos de la base de datos.";
     }
 
+
     public List<Producto> buscarPorVariosCriterios(String criterio, String texto) {
         List<Producto> lista = new ArrayList<>();
 
@@ -181,6 +182,7 @@ public class ProductoDao implements CRUD<Producto> {
                 "INNER JOIN categoria c ON p.categoria_id = c.id " +
                 "WHERE ";
 
+
         boolean todosLosCampos = "Todos los campos".equals(criterio);
         switch (criterio) {
             case "Todos los campos":
@@ -188,24 +190,30 @@ public class ProductoDao implements CRUD<Producto> {
                         "OR CAST(p.precio_venta AS TEXT) ILIKE ? OR CAST(p.existencia AS TEXT) ILIKE ? " +
                         "OR COALESCE(p.ruta_imagen, '') ILIKE ? OR CAST(p.activo AS TEXT) ILIKE ?)";
                 break;
+
             case "Código":
                 sql += "p.codigo ILIKE ?";
                 break;
+
             case "Nombre":
                 sql += "p.nombre ILIKE ?";
                 break;
             case "Categoría":
                 sql += "c.nombre ILIKE ?";
                 break;
+
             case "Precio":
                 sql += "CAST(p.precio_venta AS TEXT) ILIKE ?";
                 break;
+
             case "Existencia":
                 sql += "CAST(p.existencia AS TEXT) ILIKE ?";
                 break;
+
             default:
                 sql += "p.nombre ILIKE ?";
         }
+
 
         sql += " ORDER BY p.nombre";
 
