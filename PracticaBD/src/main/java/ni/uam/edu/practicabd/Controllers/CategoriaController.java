@@ -51,6 +51,8 @@ public class CategoriaController {
         tblCategorias.setContextMenu(contextMenu);
     }
 
+
+
     private void prepararActualizar() {
         Categoria seleccionada = tblCategorias.getSelectionModel().getSelectedItem();
         if (seleccionada == null) {
@@ -95,6 +97,8 @@ public class CategoriaController {
             }
         }
     }
+
+
 
     @FXML
     public void guardar(ActionEvent event) {

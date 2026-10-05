@@ -72,6 +72,10 @@ public class CategoriaDao implements CRUD<Categoria> {
         }
     }
 
+
+
+
+
     @Override
     public void actualizar(Categoria entidad) {
         validarCategoria(entidad, true);
