@@ -297,8 +297,9 @@ public class ProductoController {
 
         try {
             BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
-            if (precio.signum() < 0) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "El precio no puede ser negativo.");
+            if (precio.compareTo(BigDecimal.ZERO) <= 0) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Precio incorrecto", "El precio de venta debe ser mayor que cero.");
+                txtPrecio.requestFocus();
                 return false;
             }
         } catch (NumberFormatException e) {

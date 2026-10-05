@@ -5,6 +5,7 @@ import ni.uam.edu.practicabd.Modelos.Categoria;
 import ni.uam.edu.practicabd.Modelos.Producto;
 import ni.uam.edu.practicabd.Util.DataBaseConnection;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -150,8 +151,8 @@ public class ProductoDao implements CRUD<Producto> {
         if (entidad.getCategoria() == null || entidad.getCategoria().getId() == null) {
             throw new IllegalArgumentException("Debe seleccionar una categoría válida.");
         }
-        if (entidad.getPrecioVenta() == null || entidad.getPrecioVenta().signum() < 0) {
-            throw new IllegalArgumentException("El precio debe ser un número válido mayor o igual a cero.");
+        if (entidad.getPrecioVenta() == null || entidad.getPrecioVenta().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("El precio de venta debe ser mayor que cero.");
         }
         if (entidad.getExistencia() < 0) {
             throw new IllegalArgumentException("La existencia no puede ser negativa.");
