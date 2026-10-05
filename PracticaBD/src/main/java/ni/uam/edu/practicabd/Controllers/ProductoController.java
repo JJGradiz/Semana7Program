@@ -302,7 +302,8 @@ public class ProductoController {
                 return false;
             }
         } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "El precio debe ser un número válido.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Precio incorrecto", "El precio debe contener únicamente valores numéricos.");
+            txtPrecio.requestFocus();
             return false;
         }
 
@@ -319,6 +320,7 @@ public class ProductoController {
             }
         } catch (NumberFormatException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "La existencia debe ser un número entero.");
+            txtExistencia.requestFocus();
             return false;
         }
 
