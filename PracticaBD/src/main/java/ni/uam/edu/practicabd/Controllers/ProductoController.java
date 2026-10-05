@@ -260,6 +260,7 @@ public class ProductoController {
         }
     }
 
+
     private Producto obtenerProductoFormulario() {
         String codigo = txtCodigo.getText().trim();
         String nombre = txtNombre.getText().trim();

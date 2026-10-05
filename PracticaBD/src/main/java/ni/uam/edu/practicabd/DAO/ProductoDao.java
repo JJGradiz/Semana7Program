@@ -155,6 +155,7 @@ public class ProductoDao implements CRUD<Producto> {
         }
     }
 
+
     private void validarProducto(Producto entidad) {
         if (entidad == null) {
             throw new IllegalArgumentException("Los datos del producto son obligatorios.");
