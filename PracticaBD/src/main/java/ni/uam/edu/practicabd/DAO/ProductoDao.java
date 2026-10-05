@@ -126,12 +126,12 @@ public class ProductoDao implements CRUD<Producto> {
     }
 
     public boolean existeCodigo(String codigo) {
-        String sql = "SELECT 1 FROM producto WHERE codigo = ?";
+        String sql = "SELECT COUNT(*) FROM producto WHERE codigo = ?";
         try (Connection connection = DataBaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, codigo);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return rs.next() && rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             throw new IllegalStateException("No se pudo validar si el código del producto ya existe.", e);
