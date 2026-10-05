@@ -189,7 +189,7 @@ public class ProductoController {
 
         String codigo = txtCodigo.getText().trim();
         String nombre = txtNombre.getText().trim();
-        Categoria categoria = cmbCategoria.getValue();
+        Categoria categoria = cmbCategoria.getSelectionModel().getSelectedItem();
         BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
         int existencia = Integer.parseInt(txtExistencia.getText().trim());
         String ruta = (txtRuta != null && txtRuta.getText() != null) ? txtRuta.getText().trim() : "";
@@ -282,8 +282,11 @@ public class ProductoController {
             return false;
         }
 
-        if (cmbCategoria == null || cmbCategoria.getValue() == null) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Campo vacío", "Debe seleccionar una categoría.");
+        if (cmbCategoria == null || cmbCategoria.getSelectionModel().getSelectedItem() == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "Debe seleccionar una categoría.");
+            if (cmbCategoria != null) {
+                cmbCategoria.requestFocus();
+            }
             return false;
         }
 
