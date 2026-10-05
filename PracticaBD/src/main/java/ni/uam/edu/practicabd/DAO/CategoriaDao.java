@@ -141,12 +141,12 @@ public class CategoriaDao implements CRUD<Categoria> {
     }
 
     private boolean tieneProductos(Integer categoriaId) {
-        String sql = "SELECT 1 FROM producto WHERE categoria_id = ?";
+        String sql = "SELECT COUNT(*) FROM producto WHERE categoria_id = ?";
         try (Connection connection = DataBaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, categoriaId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return rs.next() && rs.getInt(1) > 0;
             }
         } catch (SQLException e) {
             throw new IllegalStateException("No se pudo comprobar si la categoría tiene productos asociados.", e);
