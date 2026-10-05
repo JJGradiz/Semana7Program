@@ -183,21 +183,8 @@ public class ProductoController {
 
     @FXML
     public void btnGuardar() {
-        if (!validaciones()) {
-            return;
-        }
-
-        String codigo = txtCodigo.getText().trim();
-        String nombre = txtNombre.getText().trim();
-        Categoria categoria = cmbCategoria.getSelectionModel().getSelectedItem();
-        BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
-        int existencia = Integer.parseInt(txtExistencia.getText().trim());
-        String ruta = (txtRuta != null && txtRuta.getText() != null) ? txtRuta.getText().trim() : "";
-        boolean activo = chkActivo != null && chkActivo.isSelected();
-
-        Producto producto = new Producto(null, nombre, codigo, categoria, precio, existencia, ruta, activo);
-
         try {
+            Producto producto = obtenerProductoFormulario();
             if (productoSeleccionado == null) {
                 productosDao.guardar(producto);
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto guardado correctamente.");
@@ -262,73 +249,62 @@ public class ProductoController {
         }
     }
 
-    private boolean validaciones() {
-        String codigo = txtCodigo == null || txtCodigo.getText() == null
-                ? "" : txtCodigo.getText().trim();
-        String nombre = txtNombre == null || txtNombre.getText() == null
-                ? "" : txtNombre.getText().trim();
-
+    private Producto obtenerProductoFormulario() {
+        String codigo = txtCodigo.getText().trim();
+        String nombre = txtNombre.getText().trim();
         if (codigo.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "El código del producto es obligatorio.");
-            if (txtCodigo != null) {
-                txtCodigo.requestFocus();
-            }
-            return false;
+            txtCodigo.requestFocus();
+            throw new IllegalArgumentException("El código del producto es obligatorio.");
         }
 
         if (nombre.isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "El nombre del producto es obligatorio.");
-            if (txtNombre != null) {
-                txtNombre.requestFocus();
-            }
-            return false;
+            txtNombre.requestFocus();
+            throw new IllegalArgumentException("El nombre del producto es obligatorio.");
         }
 
-        if (cmbCategoria == null || cmbCategoria.getSelectionModel().getSelectedItem() == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "Debe seleccionar una categoría.");
-            if (cmbCategoria != null) {
-                cmbCategoria.requestFocus();
-            }
-            return false;
+        Categoria categoria = cmbCategoria.getSelectionModel().getSelectedItem();
+        if (categoria == null) {
+            cmbCategoria.requestFocus();
+            throw new IllegalArgumentException("Debe seleccionar una categoría.");
         }
 
-        if (txtPrecio == null || txtPrecio.getText() == null || txtPrecio.getText().trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Campo vacío", "Debe ingresar el precio del producto.");
-            return false;
-        }
-
-        try {
-            BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
-            if (precio.compareTo(BigDecimal.ZERO) <= 0) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Precio incorrecto", "El precio de venta debe ser mayor que cero.");
-                txtPrecio.requestFocus();
-                return false;
-            }
-        } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Precio incorrecto", "El precio debe contener únicamente valores numéricos.");
+        if (txtPrecio.getText() == null || txtPrecio.getText().trim().isEmpty()) {
             txtPrecio.requestFocus();
-            return false;
+            throw new IllegalArgumentException("Debe ingresar el precio del producto.");
         }
 
-        if (txtExistencia == null || txtExistencia.getText() == null || txtExistencia.getText().trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Campo vacío", "Debe ingresar un valor en existencia.");
-            return false;
-        }
-
+        BigDecimal precio;
         try {
-            int existencia = Integer.parseInt(txtExistencia.getText().trim());
-            if (existencia < 0) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Existencia incorrecta", "La existencia no puede ser negativa.");
-                txtExistencia.requestFocus();
-                return false;
-            }
+            precio = new BigDecimal(txtPrecio.getText().trim());
         } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Existencia incorrecta", "La existencia debe ser un número entero.");
-            txtExistencia.requestFocus();
-            return false;
+            txtPrecio.requestFocus();
+            throw new IllegalArgumentException("El precio debe contener únicamente valores numéricos.", e);
+        }
+        if (precio.compareTo(BigDecimal.ZERO) <= 0) {
+            txtPrecio.requestFocus();
+            throw new IllegalArgumentException("El precio de venta debe ser mayor que cero.");
         }
 
-        return true;
+        if (txtExistencia.getText() == null || txtExistencia.getText().trim().isEmpty()) {
+            txtExistencia.requestFocus();
+            throw new IllegalArgumentException("Debe ingresar un valor en existencia.");
+        }
+
+        int existencia;
+        try {
+            existencia = Integer.parseInt(txtExistencia.getText().trim());
+        } catch (NumberFormatException e) {
+            txtExistencia.requestFocus();
+            throw new IllegalArgumentException("La existencia debe ser un número entero.", e);
+        }
+        if (existencia < 0) {
+            txtExistencia.requestFocus();
+            throw new IllegalArgumentException("La existencia no puede ser negativa.");
+        }
+
+        String ruta = txtRuta != null && txtRuta.getText() != null ? txtRuta.getText().trim() : "";
+        boolean activo = chkActivo != null && chkActivo.isSelected();
+        return new Producto(null, nombre, codigo, categoria, precio, existencia, ruta, activo);
     }
 
     @FXML
