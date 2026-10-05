@@ -103,21 +103,29 @@ public class ProductoDao implements CRUD<Producto> {
 
     @Override
     public void actualizar(Producto entidad) {
+        actualizar(entidad, entidad == null ? null : entidad.getCodigo());
+    }
+
+    public void actualizar(Producto entidad, String codigoOriginal) {
         validarProducto(entidad);
-        if (!existeCodigo(entidad.getCodigo())) {
+        if (codigoOriginal == null || codigoOriginal.trim().isEmpty() || !existeCodigo(codigoOriginal)) {
             throw new IllegalArgumentException("Debe seleccionar un producto existente para actualizar.");
         }
-        String sql = "UPDATE producto SET nombre = ?, categoria_id = ?, precio_venta = ?, existencia = ?, ruta_imagen = ?, activo = ? " +
+        if (existeCodigo(entidad.getCodigo(), codigoOriginal)) {
+            throw new IllegalArgumentException("Ya existe un producto con ese código.");
+        }
+        String sql = "UPDATE producto SET codigo = ?, nombre = ?, categoria_id = ?, precio_venta = ?, existencia = ?, ruta_imagen = ?, activo = ? " +
                 "WHERE codigo = ?";
         try (Connection connection = DataBaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, entidad.getNombre());
-            ps.setInt(2, entidad.getCategoria() != null ? entidad.getCategoria().getId() : 0);
-            ps.setBigDecimal(3, entidad.getPrecioVenta());
-            ps.setInt(4, entidad.getExistencia());
-            ps.setString(5, entidad.getRutaImagen());
-            ps.setBoolean(6, entidad.isActivo());
-            ps.setString(7, entidad.getCodigo());
+            ps.setString(1, entidad.getCodigo());
+            ps.setString(2, entidad.getNombre());
+            ps.setInt(3, entidad.getCategoria() != null ? entidad.getCategoria().getId() : 0);
+            ps.setBigDecimal(4, entidad.getPrecioVenta());
+            ps.setInt(5, entidad.getExistencia());
+            ps.setString(6, entidad.getRutaImagen());
+            ps.setBoolean(7, entidad.isActivo());
+            ps.setString(8, codigoOriginal);
             if (ps.executeUpdate() == 0) {
                 throw new IllegalArgumentException("El producto seleccionado ya no existe.");
             }
@@ -127,10 +135,18 @@ public class ProductoDao implements CRUD<Producto> {
     }
 
     public boolean existeCodigo(String codigo) {
-        String sql = "SELECT COUNT(*) FROM producto WHERE codigo = ?";
+        return existeCodigo(codigo, null);
+    }
+
+    private boolean existeCodigo(String codigo, String codigoExcluir) {
+        String sql = "SELECT COUNT(*) FROM producto WHERE codigo = ?"
+                + (codigoExcluir == null ? "" : " AND codigo <> ?");
         try (Connection connection = DataBaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, codigo);
+            if (codigoExcluir != null) {
+                ps.setString(2, codigoExcluir);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && rs.getInt(1) > 0;
             }

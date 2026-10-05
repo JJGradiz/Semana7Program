@@ -186,20 +186,31 @@ public class ProductoController {
         try {
             Producto producto = obtenerProductoFormulario();
             if (productoSeleccionado == null) {
+                if (productosDao.existeCodigo(producto.getCodigo())) {
+                    mostrarAlerta(Alert.AlertType.WARNING, "Código duplicado", "Ya existe un producto con ese código.");
+                    txtCodigo.requestFocus();
+                    return;
+                }
                 productosDao.guardar(producto);
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto guardado correctamente.");
             } else {
-                productosDao.actualizar(producto);
+                productosDao.actualizar(producto, productoSeleccionado.getCodigo());
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto actualizado correctamente.");
             }
             limpiarFormulario();
-
-
             cargarProductos();
         } catch (IllegalArgumentException e) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Validación", e.getMessage());
+            String titulo = "Ya existe un producto con ese código.".equals(e.getMessage())
+                    ? "Código duplicado" : "Validación";
+            mostrarAlerta(Alert.AlertType.WARNING, titulo, e.getMessage());
         } catch (IllegalStateException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
+            String mensaje = e.getMessage();
+            if ("Ya existe un producto con ese código.".equals(mensaje)
+                    || "La categoría seleccionada no existe o está relacionada con otros registros.".equals(mensaje)) {
+                mostrarAlerta(Alert.AlertType.WARNING, "Validación", mensaje);
+            } else {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", "No fue posible completar la operación.");
+            }
         }
     }
     @FXML

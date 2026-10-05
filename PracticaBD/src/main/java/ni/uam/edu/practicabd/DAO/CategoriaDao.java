@@ -58,7 +58,7 @@ public class CategoriaDao implements CRUD<Categoria> {
             throw new IllegalArgumentException("La categoría seleccionada ya no existe.");
         }
         if (tieneProductos(entidad.getId())) {
-            throw new IllegalStateException("No se puede eliminar la categoría porque tiene productos asociados.");
+            throw new IllegalStateException("No puede eliminar la categoría porque tiene productos asociados.");
         }
         String sql = "DELETE FROM categoria WHERE id = ?";
         try (Connection con = DataBaseConnection.getConnection();
@@ -158,7 +158,7 @@ public class CategoriaDao implements CRUD<Categoria> {
             return "Ya existe una categoría con ese nombre.";
         }
         if ("23503".equals(e.getSQLState())) {
-            return "No se puede eliminar la categoría porque tiene productos asociados.";
+            return "No puede eliminar la categoría porque tiene productos asociados.";
         }
         return "No se pudo " + operacion + ". Verifique la conexión y los datos de la base de datos.";
     }
