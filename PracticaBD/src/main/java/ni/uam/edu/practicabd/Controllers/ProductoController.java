@@ -261,13 +261,24 @@ public class ProductoController {
     }
 
     private boolean validaciones() {
-        if (txtCodigo == null || txtCodigo.getText() == null || txtCodigo.getText().trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Campo vacío", "Debe ingresar el código del producto.");
+        String codigo = txtCodigo == null || txtCodigo.getText() == null
+                ? "" : txtCodigo.getText().trim();
+        String nombre = txtNombre == null || txtNombre.getText() == null
+                ? "" : txtNombre.getText().trim();
+
+        if (codigo.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "El código del producto es obligatorio.");
+            if (txtCodigo != null) {
+                txtCodigo.requestFocus();
+            }
             return false;
         }
 
-        if (txtNombre == null || txtNombre.getText() == null || txtNombre.getText().trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Campo vacío", "Debe ingresar el nombre del producto.");
+        if (nombre.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "El nombre del producto es obligatorio.");
+            if (txtNombre != null) {
+                txtNombre.requestFocus();
+            }
             return false;
         }
 
