@@ -89,6 +89,8 @@ public class CategoriaDao implements CRUD<Categoria> {
         }
     }
 
+
+
     public boolean existeNombre(String nombre, Integer idExcluir) {
         String sql = "SELECT 1 FROM categoria WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(?))"
                 + (idExcluir == null ? "" : " AND id <> ?");
