@@ -122,8 +122,10 @@ public class CategoriaController {
                 categoriaDao.actualizar(categoriaSeleccionada);
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Categoría actualizada correctamente.");
             }
+
             limpiar();
             cargarCategorias();
+
         } catch (IllegalArgumentException e) {
             mostrarAlerta(Alert.AlertType.WARNING, "Validación", e.getMessage());
         } catch (IllegalStateException e) {

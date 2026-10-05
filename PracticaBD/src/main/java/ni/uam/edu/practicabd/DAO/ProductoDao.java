@@ -37,6 +37,7 @@ public class ProductoDao implements CRUD<Producto> {
 
             ps.executeUpdate();
 
+
         } catch (SQLException e) {
             throw new IllegalStateException(mensajeError(e, "guardar el producto"), e);
         }
@@ -158,6 +159,8 @@ public class ProductoDao implements CRUD<Producto> {
             throw new IllegalArgumentException("La existencia no puede ser negativa.");
         }
     }
+
+
 
     private String mensajeError(SQLException e, String operacion) {
         if ("23505".equals(e.getSQLState())) {

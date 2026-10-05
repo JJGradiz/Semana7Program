@@ -206,6 +206,8 @@ public class ProductoController {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto actualizado correctamente.");
             }
             limpiarFormulario();
+
+
             cargarProductos();
         } catch (IllegalArgumentException e) {
             mostrarAlerta(Alert.AlertType.WARNING, "Validación", e.getMessage());
