@@ -316,11 +316,12 @@ public class ProductoController {
         try {
             int existencia = Integer.parseInt(txtExistencia.getText().trim());
             if (existencia < 0) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "La existencia no puede ser negativa.");
+                mostrarAlerta(Alert.AlertType.ERROR, "Existencia incorrecta", "La existencia no puede ser negativa.");
+                txtExistencia.requestFocus();
                 return false;
             }
         } catch (NumberFormatException e) {
-            mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "La existencia debe ser un número entero.");
+            mostrarAlerta(Alert.AlertType.ERROR, "Existencia incorrecta", "La existencia debe ser un número entero.");
             txtExistencia.requestFocus();
             return false;
         }
