@@ -16,6 +16,10 @@ public class ProductoDao implements CRUD<Producto> {
 
     @Override
     public void guardar(Producto entidad) {
+        validarProducto(entidad);
+        if (existeCodigo(entidad.getCodigo())) {
+            throw new IllegalArgumentException("Ya existe un producto con ese código.");
+        }
         String sql = "INSERT INTO producto (codigo, nombre, categoria_id, precio_venta, existencia, ruta_imagen, activo) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -33,8 +37,7 @@ public class ProductoDao implements CRUD<Producto> {
             ps.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Error de base de datos al guardar producto: " + e.getMessage());
+            throw new IllegalStateException(mensajeError(e, "guardar el producto"), e);
         }
     }
 
@@ -71,27 +74,37 @@ public class ProductoDao implements CRUD<Producto> {
                 lista.add(p);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Error al listar productos: " + e.getMessage());
+            throw new IllegalStateException("No se pudieron cargar los productos. Verifique la conexión con la base de datos.", e);
         }
         return lista;
     }
 
     @Override
     public void eliminar(Producto entidad) {
+        if (entidad == null || entidad.getCodigo() == null || entidad.getCodigo().trim().isEmpty()) {
+            throw new IllegalArgumentException("Debe seleccionar un producto para eliminar.");
+        }
+        if (!existeCodigo(entidad.getCodigo())) {
+            throw new IllegalArgumentException("El producto seleccionado ya no existe.");
+        }
         String sql = "DELETE FROM producto WHERE codigo = ?";
         try (Connection connection = DataBaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, entidad.getCodigo());
-            ps.executeUpdate();
+            if (ps.executeUpdate() == 0) {
+                throw new IllegalArgumentException("El producto seleccionado ya no existe.");
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalStateException(mensajeError(e, "eliminar el producto"), e);
         }
     }
 
     @Override
     public void actualizar(Producto entidad) {
+        validarProducto(entidad);
+        if (!existeCodigo(entidad.getCodigo())) {
+            throw new IllegalArgumentException("Debe seleccionar un producto existente para actualizar.");
+        }
         String sql = "UPDATE producto SET nombre = ?, categoria_id = ?, precio_venta = ?, existencia = ?, ruta_imagen = ?, activo = ? " +
                 "WHERE codigo = ?";
         try (Connection connection = DataBaseConnection.getConnection();
@@ -103,10 +116,11 @@ public class ProductoDao implements CRUD<Producto> {
             ps.setString(5, entidad.getRutaImagen());
             ps.setBoolean(6, entidad.isActivo());
             ps.setString(7, entidad.getCodigo());
-            ps.executeUpdate();
+            if (ps.executeUpdate() == 0) {
+                throw new IllegalArgumentException("El producto seleccionado ya no existe.");
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            throw new IllegalStateException(mensajeError(e, "actualizar el producto"), e);
         }
     }
 
@@ -119,10 +133,41 @@ public class ProductoDao implements CRUD<Producto> {
                 return rs.next();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("No se pudo validar si el código del producto ya existe.", e);
         }
-        return false;
     }
+
+    private void validarProducto(Producto entidad) {
+        if (entidad == null) {
+            throw new IllegalArgumentException("Los datos del producto son obligatorios.");
+        }
+        if (entidad.getCodigo() == null || entidad.getCodigo().trim().isEmpty()) {
+            throw new IllegalArgumentException("El código del producto es obligatorio.");
+        }
+        if (entidad.getNombre() == null || entidad.getNombre().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre del producto es obligatorio.");
+        }
+        if (entidad.getCategoria() == null || entidad.getCategoria().getId() == null) {
+            throw new IllegalArgumentException("Debe seleccionar una categoría válida.");
+        }
+        if (entidad.getPrecioVenta() == null || entidad.getPrecioVenta().signum() < 0) {
+            throw new IllegalArgumentException("El precio debe ser un número válido mayor o igual a cero.");
+        }
+        if (entidad.getExistencia() < 0) {
+            throw new IllegalArgumentException("La existencia no puede ser negativa.");
+        }
+    }
+
+    private String mensajeError(SQLException e, String operacion) {
+        if ("23505".equals(e.getSQLState())) {
+            return "Ya existe un producto con ese código.";
+        }
+        if ("23503".equals(e.getSQLState())) {
+            return "La categoría seleccionada no existe o está relacionada con otros registros.";
+        }
+        return "No se pudo " + operacion + ". Verifique la conexión y los datos de la base de datos.";
+    }
+
     public List<Producto> buscarPorVariosCriterios(String criterio, String texto) {
         List<Producto> lista = new ArrayList<>();
 
@@ -180,7 +225,7 @@ public class ProductoDao implements CRUD<Producto> {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("No se pudieron buscar los productos. Verifique la conexión con la base de datos.", e);
         }
         return lista;
     }

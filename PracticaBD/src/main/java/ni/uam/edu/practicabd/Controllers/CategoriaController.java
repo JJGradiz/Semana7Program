@@ -80,41 +80,51 @@ public class CategoriaController {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Categoría eliminada correctamente.");
                 limpiar();
                 cargarCategorias();
-            } catch (Exception e) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo eliminar la categoría (es posible que tenga productos asociados).");
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error al eliminar", e.getMessage());
             }
         }
     }
 
     private void cargarCategorias() {
         if (tblCategorias != null) {
-            tblCategorias.setItems(FXCollections.observableArrayList(categoriaDao.listar()));
+            try {
+                tblCategorias.setItems(FXCollections.observableArrayList(categoriaDao.listar()));
+            } catch (IllegalStateException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
+            }
         }
     }
 
     @FXML
     public void guardar(ActionEvent event) {
-        String nombre = txtNombre.getText();
-        if (nombre == null || nombre.trim().isEmpty()) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "Debe ingresar el nombre de la categoría.");
+        String nombre = txtNombre.getText() == null ? "" : txtNombre.getText().trim();
+        if (nombre.isEmpty()) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación", "El nombre de la categoría es obligatorio.");
+            txtNombre.requestFocus();
             return;
         }
 
-        if (categoriaSeleccionada == null) {
-            Categoria c = new Categoria();
-            c.setNombre(nombre.trim());
-            c.setActiva(chkActiva != null && chkActiva.isSelected());
-            categoriaDao.guardar(c);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Categoría guardada correctamente en la base de datos.");
-        } else {
-            categoriaSeleccionada.setNombre(nombre.trim());
-            categoriaSeleccionada.setActiva(chkActiva != null && chkActiva.isSelected());
-            categoriaDao.actualizar(categoriaSeleccionada);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Categoría actualizada correctamente.");
+        try {
+            if (categoriaSeleccionada == null) {
+                Categoria categoria = new Categoria();
+                categoria.setNombre(nombre);
+                categoria.setActiva(chkActiva != null && chkActiva.isSelected());
+                categoriaDao.guardar(categoria);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Categoría guardada correctamente.");
+            } else {
+                categoriaSeleccionada.setNombre(nombre);
+                categoriaSeleccionada.setActiva(chkActiva != null && chkActiva.isSelected());
+                categoriaDao.actualizar(categoriaSeleccionada);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Categoría actualizada correctamente.");
+            }
+            limpiar();
+            cargarCategorias();
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación", e.getMessage());
+        } catch (IllegalStateException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
         }
-
-        limpiar();
-        cargarCategorias();
     }
 
     private void limpiar() {
@@ -134,7 +144,11 @@ public class CategoriaController {
             cargarCategorias();
         }
         else{
-            tblCategorias.setItems(FXCollections.observableArrayList(categoriaDao.buscarPorNombre(filtrar)));
+            try {
+                tblCategorias.setItems(FXCollections.observableArrayList(categoriaDao.buscarPorNombre(filtrar)));
+            } catch (IllegalStateException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
+            }
         }
     }
 

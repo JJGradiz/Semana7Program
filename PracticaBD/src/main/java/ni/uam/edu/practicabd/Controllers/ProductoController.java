@@ -58,7 +58,11 @@ public class ProductoController {
 
     public void cargarCategorias() {
         if (cmbCategoria != null) {
-            cmbCategoria.setItems(FXCollections.observableArrayList(categoriaDao.listar()));
+            try {
+                cmbCategoria.setItems(FXCollections.observableArrayList(categoriaDao.listar()));
+            } catch (IllegalStateException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
+            }
         }
     }
 
@@ -144,15 +148,19 @@ public class ProductoController {
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto eliminado correctamente.");
                 limpiarFormulario();
                 cargarProductos();
-            } catch (Exception e) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo eliminar el producto: " + e.getMessage());
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error al eliminar", e.getMessage());
             }
         }
     }
 
     public void cargarProductos() {
         if (tblProductos != null) {
-            tblProductos.setItems(FXCollections.observableArrayList(productosDao.listar()));
+            try {
+                tblProductos.setItems(FXCollections.observableArrayList(productosDao.listar()));
+            } catch (IllegalStateException e) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
+            }
         }
     }
 
@@ -189,16 +197,21 @@ public class ProductoController {
 
         Producto producto = new Producto(null, nombre, codigo, categoria, precio, existencia, ruta, activo);
 
-        if (productoSeleccionado == null) {
-            productosDao.guardar(producto);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto guardado correctamente en la base de datos.");
-        } else {
-            productosDao.actualizar(producto);
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto actualizado correctamente.");
+        try {
+            if (productoSeleccionado == null) {
+                productosDao.guardar(producto);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto guardado correctamente.");
+            } else {
+                productosDao.actualizar(producto);
+                mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Producto actualizado correctamente.");
+            }
+            limpiarFormulario();
+            cargarProductos();
+        } catch (IllegalArgumentException e) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Validación", e.getMessage());
+        } catch (IllegalStateException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
         }
-
-        limpiarFormulario();
-        cargarProductos();
     }
     @FXML
     public void filtrarPorCriterio(){
@@ -213,8 +226,12 @@ public class ProductoController {
             return;
         }
 
-        tblProductos.setItems(FXCollections.observableArrayList(
-                productosDao.buscarPorVariosCriterios(criterio, texto)));
+        try {
+            tblProductos.setItems(FXCollections.observableArrayList(
+                    productosDao.buscarPorVariosCriterios(criterio, texto)));
+        } catch (IllegalStateException e) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Error de base de datos", e.getMessage());
+        }
     }
 
     @FXML
@@ -249,13 +266,6 @@ public class ProductoController {
             return false;
         }
 
-        if (productoSeleccionado == null) {
-            if (productosDao.existeCodigo(txtCodigo.getText().trim())) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Código duplicado", "El código \"" + txtCodigo.getText().trim() + "\" ya existe. Ingrese un código diferente.");
-                return false;
-            }
-        }
-
         if (txtNombre == null || txtNombre.getText() == null || txtNombre.getText().trim().isEmpty()) {
             mostrarAlerta(Alert.AlertType.ERROR, "Campo vacío", "Debe ingresar el nombre del producto.");
             return false;
@@ -272,7 +282,11 @@ public class ProductoController {
         }
 
         try {
-            new BigDecimal(txtPrecio.getText().trim());
+            BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
+            if (precio.signum() < 0) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "El precio no puede ser negativo.");
+                return false;
+            }
         } catch (NumberFormatException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "El precio debe ser un número válido.");
             return false;
@@ -284,7 +298,11 @@ public class ProductoController {
         }
 
         try {
-            Integer.parseInt(txtExistencia.getText().trim());
+            int existencia = Integer.parseInt(txtExistencia.getText().trim());
+            if (existencia < 0) {
+                mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "La existencia no puede ser negativa.");
+                return false;
+            }
         } catch (NumberFormatException e) {
             mostrarAlerta(Alert.AlertType.ERROR, "Dato inválido", "La existencia debe ser un número entero.");
             return false;
